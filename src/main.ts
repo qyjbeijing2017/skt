@@ -1,3 +1,4 @@
+import { sktTestMatch } from "./skt/test/match/match-init";
 import { rpcTestSktDeserialize } from "./skt/test/rpc/rpc-test-deserialize";
 import { rpcTestSktSerialize } from "./skt/test/rpc/rpc-test-serialize";
 
@@ -11,6 +12,7 @@ function InitModule(
         // test skt
         initializer.registerRpc("rpcTestSktSerialize", rpcTestSktSerialize);
         initializer.registerRpc("rpcTestSktDeserialize", rpcTestSktDeserialize);
+        initializer.registerMatch("sktTestMatch", sktTestMatch);
     } catch (error) {
         logger.error("Error initializing module", error.message);
     }
