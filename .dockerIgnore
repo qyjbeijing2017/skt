@@ -1,0 +1,28 @@
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Build
+build/
+dist/
+
+# Node.js
+node_modules/
+
+# Git
+.git/
+.gitignore/
+
+# IDE
+.vscode/
+.vs/
+.idea/
+
+# Logs
+*.log
+
+# Tests
+test/
+
+# Other
+README.md

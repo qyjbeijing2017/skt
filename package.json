@@ -1,0 +1,49 @@
+{
+  "name": "skt",
+  "version": "1.0.0",
+  "description": "A Nakama Framework for Game Server Development",
+  "main": "src/index.ts",
+  "repository": "https://github.com/qyjbeijing2017/space-trading-back.git",
+  "author": "JacsonQiu <qyjbeijing@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "type-check": "tsc --noEmit",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/plugin-external-helpers": "^7.24.7",
+    "@babel/plugin-proposal-decorators": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@jest/globals": "^29.7.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "jest-ts-auto-mock": "^2.1.0",
+    "rollup": "^4.18.0",
+    "ts-auto-mock": "^3.7.3",
+    "ts-jest": "^29.1.5",
+    "ts-patch": "^3.2.1",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "nakama-runtime": "https://github.com/heroiclabs/nakama-common"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "compiler": "ts-patch/compiler"
+      }
+    },
+    "transform": {
+      ".(ts|tsx)": "ts-jest"
+    },
+    "setupFiles": [
+      "<rootDir>jest-config.ts"
+    ]
+  }
+}

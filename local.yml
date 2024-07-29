@@ -1,0 +1,13 @@
+console:
+  max_message_size_bytes: 409600
+  password: "password"
+  username: "admin"
+logger:
+  level: "DEBUG"
+runtime:
+  js_entrypoint: "build/index.js"
+session:
+  token_expiry_sec: 720000 # 2 hours
+socket:
+  max_message_size_bytes: 4096 # reserved buffer
+  max_request_size_bytes: 131072
