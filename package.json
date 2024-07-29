@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A Nakama Framework for Game Server Development",
   "main": "src/index.ts",
-  "repository": "https://github.com/qyjbeijing2017/space-trading-back.git",
+  "repository": "https://github.com/qyjbeijing2017/skt.git",
   "author": "JacsonQiu <qyjbeijing@gmail.com>",
   "license": "MIT",
   "scripts": {
