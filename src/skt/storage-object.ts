@@ -1,4 +1,5 @@
 import { getProperties } from "./decorator/meta-data";
+import { SktProperty } from "./decorator/property";
 import { SktReadPermission, SktWritePermission } from "./interface/permission";
 import { SktLogger } from "./logger";
 import { SktSerializable } from "./serializable";
@@ -14,13 +15,16 @@ export abstract class SktStorageObject extends SktSerializable {
     abstract get key(): string;
     protected readPermission: SktReadPermission = SktReadPermission.OWNER_READ;
     protected writePermission: SktWritePermission = SktWritePermission.OWNER_WRITE;
+    @SktProperty()
     protected ownerId?: string;
+    @SktProperty()
     private _version?: string;
     get version(): string | undefined {
         return this._version;
     }
 
-    protected state: SktStorageObjectState = SktStorageObjectState.NEW;
+    @SktProperty()
+    public state: SktStorageObjectState = SktStorageObjectState.NEW;
 
     constructor(
         nk: nkruntime.Nakama,

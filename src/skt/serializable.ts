@@ -47,12 +47,19 @@ export abstract class SktSerializable {
             if(property.type) {
                 if(Array.isArray(value)) {
                     this[property.key] = (value as SktId[]).map((v, index) => {
+                       if(!v) {
+                           return v as null | undefined;
+                       }
                        input.sktId = v;
                        return this.replaceProperties(input, this[property.key][index], property, ctx);
                     });
                 } else {
-                    input.sktId = (value as SktId);
-                    this[property.key] = this.replaceProperties(input, this[property.key], property, ctx);
+                    if(!value) {
+                        this[property.key] = value;
+                    } else {
+                        input.sktId = (value as SktId);
+                        this[property.key] = this.replaceProperties(input, this[property.key], property, ctx);
+                    }
                 }
             } else {
                 this[property.key] = value;
@@ -76,13 +83,20 @@ export abstract class SktSerializable {
         properties.forEach((property) => {
             if(property.type) {
                 if(Array.isArray(this[property.key])) {
-                    serialized[property.key] = (this[property.key] as SktSerializable[]).map((v) => {
+                    serialized[property.key] = (this[property.key] as (SktSerializable)[]).map((v) => {
+                        if(!v) {
+                            return v as null | undefined;
+                        }
                         v.serialize(ctx);
                         return v.sktId;
                     });
                 } else {
-                    this[property.key].serialize(ctx);
-                    serialized[property.key] = this[property.key].sktId;
+                    if(!this[property.key]) {
+                        serialized[property.key] = this[property.key];
+                    } else {
+                        this[property.key].serialize(ctx);
+                        serialized[property.key] = this[property.key].sktId;
+                    }
                 }
             } else {
                 serialized[property.key] = this[property.key];

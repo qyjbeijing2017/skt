@@ -1,4 +1,4 @@
-export type SktId = string;
+export type SktId = string | undefined | null;
 export type SktSerializedBaseField =  number | string | boolean | null | undefined;
 export type SktSerializedField = SktSerializedBaseField | SktSerializedBaseField[] | SktId | SktId[];
 
