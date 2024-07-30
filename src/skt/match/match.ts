@@ -35,7 +35,7 @@ export class SktMatch extends SktSerializable {
     }
 
     constructor(private readonly option: SktMatchOptions) {
-        super(option.nk, new SktLogger(option.logger), option.ctx.userId);
+        super(option.nk, new SktLogger(option.logger));
     }
 
     protected onPlayerJoin(presence: nkruntime.Presence): void {}

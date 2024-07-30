@@ -19,8 +19,8 @@ export class SktTestSubClass extends SktSerializable {
     @SktProperty({ type: "SktTestClass" })
     public parent: SktTestClass;
 
-    constructor(nk: nkruntime.Nakama, logger: SktLogger, userId: string | undefined, parent: SktTestClass) {
-        super(nk, logger, userId);
+    constructor(nk: nkruntime.Nakama, logger: SktLogger, parent: SktTestClass) {
+        super(nk, logger);
         this.parent = parent;
     }
 }

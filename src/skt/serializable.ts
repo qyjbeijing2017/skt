@@ -21,14 +21,13 @@ export abstract class SktSerializable {
     constructor(
         readonly nk: nkruntime.Nakama,
         readonly logger: SktLogger,
-        readonly userId?: string,
     ) {}
 
     private replaceProperties(input: SktSerializedObject, origin: SktSerializable, property:ISktPropertyMetaInfo,  ctx: DeserializeCtx): SktSerializable {
         if(ctx[input.sktId]) {
             return ctx[input.sktId];
         }
-        const instance = ctx[origin.sktId] ? new property.type(this.nk, this.logger, this.userId) : origin;
+        const instance = ctx[origin.sktId] ? new property.type(this.nk, this.logger) : origin;
         return instance.deserialize(input, ctx);
     }
 

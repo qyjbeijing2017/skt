@@ -1,5 +1,6 @@
 import { SktSerializable } from "../serializable"
 import { ClassConstructor } from "./class-constructor"
+import { parentClass } from "./parent-class"
 
 export interface ISktPropertyMeta {
     key: string,
@@ -7,7 +8,6 @@ export interface ISktPropertyMeta {
 }
 
 export interface ISktClassMeta {
-    extends?: ClassConstructor<SktSerializable>,
     type?: ClassConstructor<SktSerializable>,
     properties: ISktPropertyMeta[]
 }
@@ -27,8 +27,9 @@ export function getProperties(target: ClassConstructor<SktSerializable>): ISktPr
         return []
     }
     let properties = meta.properties
-    if(meta.extends) {
-        properties = properties.concat(getProperties(meta.extends))
+    let parentType = parentClass(target)
+    if(parentType && sktClassMeta[parentType.name]) {
+        properties = properties.concat(getProperties(parentType))
     }
     return properties.map(p => {
         return {

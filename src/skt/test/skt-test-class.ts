@@ -3,7 +3,7 @@ import { SktProperty } from "../decorator/property";
 import { SktTestBaseClass } from "./skt-test-base-class";
 import { SktTestSubClass } from "./skt-test-sub-class";
 
-@SktClass({ extend: SktTestBaseClass })
+@SktClass()
 export class SktTestClass extends SktTestBaseClass {
     @SktProperty()
     public testString: string = "test";
@@ -16,10 +16,10 @@ export class SktTestClass extends SktTestBaseClass {
     @SktProperty()
     public testObject: any = { test: "test" };
     @SktProperty({ type: SktTestSubClass })
-    public testSubClass: SktTestSubClass = new SktTestSubClass(this.nk, this.logger, this.userId, this);
+    public testSubClass: SktTestSubClass = new SktTestSubClass(this.nk, this.logger, this);
     @SktProperty({ type: SktTestSubClass })
     public testSubClassArray: SktTestSubClass[] = [
-        new SktTestSubClass(this.nk, this.logger, this.userId, this),
-        new SktTestSubClass(this.nk, this.logger, this.userId, this),
+        new SktTestSubClass(this.nk, this.logger, this),
+        new SktTestSubClass(this.nk, this.logger, this),
     ];
 }
