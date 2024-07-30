@@ -7,7 +7,7 @@ export interface SktSerialized {
 }
 
 export interface SktSerializedObject extends nkruntime.MatchState {
-    sktId: string;
+    sktId: SktId;
     objects: {
         [key: string]: SktSerialized
     }

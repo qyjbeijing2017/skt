@@ -9,9 +9,10 @@ export const rpcTestSktStorage: nkruntime.RpcFunction = (
     payload
 ) => {
     const instance = new SktTestStorage(nk, new SktLogger(logger), ctx.userId);
+    instance.update();
     
     return JSON.stringify({
         metaData: sktClassMeta,
-        instance: instance.serialize(),
+        instance: instance.serialize()
     });
 }

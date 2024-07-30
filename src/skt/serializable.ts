@@ -2,14 +2,14 @@ import { ClassConstructor } from "./decorator/class-constructor";
 import { ISktPropertyMetaInfo, getProperties } from "./decorator/meta-data";
 import { SktId, SktSerialized, SktSerializedObject } from "./interface/serialized.interface";
 import { SktLogger } from "./logger";
-import { createSktId } from "./utils/id";
+import { createStringSktId } from "./utils/id";
 
 export interface DeserializeCtx {
     [key: string]: SktSerializable;
 }
 
 export abstract class SktSerializable {
-    private _sktId: SktId = createSktId();
+    protected _sktId: SktId = createStringSktId();
     get sktId(): SktId {
         return this._sktId;
     }
@@ -21,7 +21,10 @@ export abstract class SktSerializable {
     constructor(
         readonly nk: nkruntime.Nakama,
         readonly logger: SktLogger,
-    ) {}
+        sktId: SktId = createStringSktId()
+    ) {
+        this._sktId = sktId;
+    }
 
     private replaceProperties(input: SktSerializedObject, origin: SktSerializable, property:ISktPropertyMetaInfo,  ctx: DeserializeCtx): SktSerializable {
         if(ctx[input.sktId]) {
@@ -38,7 +41,6 @@ export abstract class SktSerializable {
 
         this._sktId = input.sktId;
         ctx[this.sktId] = this;
-        this.logger.debug(`Deserializing ${this.classConstructor.name} with sktId: ${this.sktId}`);
 
         const properties = getProperties(this.classConstructor);
         const serialized = input.objects[this.sktId];
