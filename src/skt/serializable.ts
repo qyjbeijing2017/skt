@@ -71,6 +71,13 @@ export abstract class SktSerializable {
         return this;
     }
 
+    // update(ctx:SktSerializedObject): SktSerializedObject {
+    //     const properties = getProperties(this.classConstructor);
+
+    //     return ctx;
+
+    // }
+
     serialize(ctx: SktSerializedObject = {
         sktId: this.sktId,
         objects: {}

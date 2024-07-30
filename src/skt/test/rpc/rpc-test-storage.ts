@@ -16,10 +16,10 @@ export const rpcTestSktStorage: nkruntime.RpcFunction = (
     instance.testSub.update();
     instance.testSub.testStr = 'testSubStr11111';
     const testSubInstance2 = new SktTestSubStorage(nk, new SktLogger(logger), ctx.userId);
-    if(testSubInstance2 !== instance.testSub) {
+    if (testSubInstance2 !== instance.testSub) {
         throw new Error('should be the same instance');
     }
-    
+
     return JSON.stringify({
         metaData: sktClassMeta,
         instance: instance.serialize()

@@ -1,10 +1,10 @@
 import { SktClass } from "../decorator/class";
-import { SktProperty } from "../decorator/property";
 import { SktStorageProperty } from "../decorator/storage-property";
 import { SktReadPermission, SktWritePermission } from "../interface/permission";
 import { SktLogger } from "../logger";
 import { SktStorageObject } from "../storage-object";
 import { SktTestClass } from "./skt-test-class";
+// import { SktTestClass } from "./skt-test-class";
 import { SktTestSubStorage } from "./skt-test-sub-storage";
 
 

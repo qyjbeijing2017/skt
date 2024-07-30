@@ -19,5 +19,24 @@ export function SktProperty(options: SktPropertyOptions = {}): PropertyDecorator
             key: propertyKey,
             typeName: options.type ? (typeof options.type === 'string' ? options.type : options.type.name) : undefined
         });
+
+        // let value: any;
+        // Object.defineProperty(target, propertyKey, {
+        //     get: function () {
+        //         return value;
+        //     },
+        //     set: function (next: any) {
+        //         if(next === value) {
+        //             return;
+        //         }
+        //         if(this.state === SktStorageObjectState.NEW) {
+        //             throw new Error(`Storage object ${this.sktId} is not initialized, call update() first`);
+        //         }
+        //         this.state = SktStorageObjectState.CHANGED;
+        //         value = next;
+        //     },
+        //     enumerable: true,
+        //     configurable: false,
+        // });
     }
 }
