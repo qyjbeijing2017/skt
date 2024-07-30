@@ -50,12 +50,9 @@ export abstract class SktStorageObject extends SktSerializable {
             this.state = SktStorageObjectState.READ;
             return this;
         }
-        super.deserialize({
-            sktId: this.sktId,
-            objects: {
-                [this.sktId]: storageObject.value
-            }
-        });
+        // must set state to read before deserializing, otherwise it will throw an state error
+        this.state = SktStorageObjectState.READ;
+        super.deserialize(storageObject.value as SktSerializedObject);
         this._version = storageObject.version;
         this.state = SktStorageObjectState.READ;
         return this;
@@ -76,7 +73,7 @@ export abstract class SktStorageObject extends SktSerializable {
             permissionRead: this.readPermission,
             permissionWrite: this.writePermission,
             userId: this.userId,
-            value: super.serialize().objects[this.sktId],
+            value: super.serialize(),
         }
     }
 
@@ -90,6 +87,7 @@ export abstract class SktStorageObject extends SktSerializable {
         }
 
         const writeRequests = objects.map((object) => {
+            this.logger.info(`Saving ${object.sktId}, checking state ${object.state}`);
             return object.writeRequest;
         });
 

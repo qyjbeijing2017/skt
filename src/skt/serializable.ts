@@ -30,7 +30,7 @@ export abstract class SktSerializable {
         if(ctx[input.sktId]) {
             return ctx[input.sktId];
         }
-        const instance = ctx[origin.sktId] ? new property.type(this.nk, this.logger) : origin;
+        const instance = !origin || ctx[origin.sktId] ? new property.type(this.nk, this.logger) : origin;
         return instance.deserialize(input, ctx);
     }
 
