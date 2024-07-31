@@ -1,4 +1,4 @@
-export const typeInstanceOf = (type:any,parentType:any)=>{
+export const isParent = (type:any,parentType:any)=>{
     let _type = type;
     while(_type){
         if(_type === parentType){

@@ -1,13 +1,11 @@
 import { SktStorageObjectState } from "../interface/storage.interface";
 import { SktStorageObject } from "../storage-object";
-import { SktProperty, SktPropertyOptions } from "./property";
 
-export interface SktStoragePropertyOptions extends SktPropertyOptions {
+export interface SktStoragePropertyOptions {
 }
 
 export function SktStorageProperty(options: SktStoragePropertyOptions = {}): PropertyDecorator {
     return function(target: SktStorageObject, key: string) {
-        SktProperty(options)(target, key);
         let value: any;
         Object.defineProperty(target, key, {
             get: function () {
@@ -20,6 +18,7 @@ export function SktStorageProperty(options: SktStoragePropertyOptions = {}): Pro
                 if(this.state === SktStorageObjectState.NEW) {
                     throw new Error(`Storage object ${this.sktId} is not initialized, call update() first`);
                 }
+                this.logger.info(`Storage object ${this.sktId} property ${key} changed from ${value} to ${next}`);
                 this.state = SktStorageObjectState.CHANGED;
                 value = next;
             },

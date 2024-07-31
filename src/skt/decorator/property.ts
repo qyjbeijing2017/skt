@@ -1,9 +1,13 @@
 import { SktSerializable } from "../serializable";
+import { SktStorageObject } from "../storage-object";
 import { ClassConstructor } from "./class-constructor";
 import { sktClassMeta } from "./meta-data";
+import { SktStorageProperty, SktStoragePropertyOptions } from "./storage-property";
+// import { typeInstanceOf } from "./type-instance-of";
 
 export interface SktPropertyOptions {
     type?: string | ClassConstructor<SktSerializable>
+    storage?: SktStoragePropertyOptions
 }
 
 
@@ -20,23 +24,8 @@ export function SktProperty(options: SktPropertyOptions = {}): PropertyDecorator
             typeName: options.type ? (typeof options.type === 'string' ? options.type : options.type.name) : undefined
         });
 
-        // let value: any;
-        // Object.defineProperty(target, propertyKey, {
-        //     get: function () {
-        //         return value;
-        //     },
-        //     set: function (next: any) {
-        //         if(next === value) {
-        //             return;
-        //         }
-        //         if(this.state === SktStorageObjectState.NEW) {
-        //             throw new Error(`Storage object ${this.sktId} is not initialized, call update() first`);
-        //         }
-        //         this.state = SktStorageObjectState.CHANGED;
-        //         value = next;
-        //     },
-        //     enumerable: true,
-        //     configurable: false,
-        // });
+        if(target instanceof SktStorageObject) {
+            SktStorageProperty(options.storage)(target, propertyKey);
+        }
     }
 }

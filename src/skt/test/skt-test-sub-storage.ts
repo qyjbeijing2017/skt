@@ -1,5 +1,5 @@
 import { SktClass } from "../decorator/class";
-import { SktStorageProperty } from "../decorator/storage-property";
+import { SktProperty } from "../decorator/property";
 import { SktReadPermission, SktWritePermission } from "../interface/permission";
 import { SktLogger } from "../logger";
 import { SktStorageObject } from "../storage-object";
@@ -10,7 +10,7 @@ export class SktTestSubStorage extends SktStorageObject {
     protected readPermission: SktReadPermission = SktReadPermission.PUBLIC_READ;
     protected writePermission: SktWritePermission = SktWritePermission.OWNER_WRITE;
 
-    @SktStorageProperty()
+    @SktProperty()
     testStr: string;
 
 

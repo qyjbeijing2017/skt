@@ -1,4 +1,5 @@
 import { getProperties } from "./decorator/meta-data";
+import { isParent } from "./decorator/type-instance-of";
 import { SktReadPermission, SktWritePermission } from "./interface/permission";
 import { SktSerializedObject } from "./interface/serialized.interface";
 import { SktStorageObjectState } from "./interface/storage.interface";
@@ -7,8 +8,6 @@ import { DeserializeCtx, SktSerializable } from "./serializable";
 
 
 export abstract class SktStorageObject extends SktSerializable {
-
-
     static readonly sktStorageObjectMap = new Map<string, SktStorageObject>();
 
     protected readPermission: SktReadPermission = SktReadPermission.OWNER_READ;
@@ -104,13 +103,25 @@ export abstract class SktStorageObject extends SktSerializable {
         });
     }
 
+    destroy(): void {
+        this.nk.storageDelete([this.readRequest]);
+        this.state = SktStorageObjectState.NEW;
+    }
+
+    private checkTree(): void {
+        const properties = getProperties(this.classConstructor)
+        properties.forEach((property) => {
+            if(!isParent(property.type, SktStorageObject) && isParent(property.type, SktSerializable)) {
+                throw new Error(`Property ${property.key} is not a SktStorageObject`);
+            }
+        });
+    }
+
     serialize(ctx: SktSerializedObject = {
         sktId: this.sktId,
         objects: {}
     }): SktSerializedObject {
-        if(ctx[this.sktId]) {
-            return ctx;
-        }
+        this.checkTree();
         this.save();
         return ctx;
     }
@@ -122,6 +133,7 @@ export abstract class SktStorageObject extends SktSerializable {
         if(input.sktId !== this.sktId) {
             throw new Error(`Invalid sktId ${input.sktId} for ${this.sktId}`);
         }
+        this.checkTree();
         this.state = SktStorageObjectState.NEW;
         return this;
     }

@@ -1,10 +1,9 @@
 import { SktClass } from "../decorator/class";
-import { SktStorageProperty } from "../decorator/storage-property";
+import { SktProperty } from "../decorator/property";
 import { SktReadPermission, SktWritePermission } from "../interface/permission";
 import { SktLogger } from "../logger";
 import { SktStorageObject } from "../storage-object";
 import { SktTestClass } from "./skt-test-class";
-// import { SktTestClass } from "./skt-test-class";
 import { SktTestSubStorage } from "./skt-test-sub-storage";
 
 
@@ -13,16 +12,16 @@ export class SktTestStorage extends SktStorageObject {
     protected readPermission: SktReadPermission = SktReadPermission.PUBLIC_READ;
     protected writePermission: SktWritePermission = SktWritePermission.OWNER_WRITE;
 
-    @SktStorageProperty()
+    @SktProperty()
     testStr: string;
 
-    @SktStorageProperty()
+    @SktProperty()
     testNumber: number;
 
-    @SktStorageProperty({ type: SktTestSubStorage })
+    @SktProperty({ type: SktTestSubStorage })
     testSub: SktTestSubStorage;
 
-    @SktStorageProperty({ type: SktTestClass })
+    @SktProperty({ type: SktTestClass })
     testSktObject: SktTestClass;
 
     constructor(
