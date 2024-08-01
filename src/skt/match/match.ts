@@ -73,6 +73,7 @@ export class SktMatch extends SktSerializable {
             state: state,
             tickRate: this.tickRate,
             label: JSON.stringify({
+                sktId: this.sktId,
                 name: this.name,
             }),
         };
