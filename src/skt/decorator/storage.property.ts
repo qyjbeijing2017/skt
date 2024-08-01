@@ -15,9 +15,6 @@ export function SktStorageProperty(options: SktPropertyOptions = {}): PropertyDe
                     return;
                 }
                 const self = this as SktStorage;
-                if(self['_state'] === SktStorageObjectState.NEW) {
-                    throw new Error(`Storage object ${this.sktId} is not initialized, call update() first`);
-                }
                 self['_state'] = SktStorageObjectState.CHANGED;
                 value = next;
             },

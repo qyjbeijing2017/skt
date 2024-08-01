@@ -11,7 +11,7 @@ export class SktTestSubStorage extends SktStorage {
     protected writePermission: SktWritePermission = SktWritePermission.OWNER_WRITE;
 
     @SktProperty()
-    testStr: string;
+    testStr: string = 'testSubStr';
 
 
     constructor(

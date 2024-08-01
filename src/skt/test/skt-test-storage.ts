@@ -12,13 +12,13 @@ export class SktTestStorage extends SktStorage {
     protected writePermission: SktWritePermission = SktWritePermission.OWNER_WRITE;
 
     @SktProperty()
-    testStr: string;
+    testStr: string = 'testStr';
 
     @SktProperty()
-    testNumber: number;
+    testNumber: number = 1;
 
     @SktProperty({ type: SktTestSubStorage })
-    testSub: SktTestSubStorage;
+    testSub: SktTestSubStorage = new SktTestSubStorage(this.nk, this.logger, this.userId);
 
     constructor(
         nk: nkruntime.Nakama,
