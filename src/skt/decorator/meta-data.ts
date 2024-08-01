@@ -21,7 +21,7 @@ export const sktClassMeta: {
     [key: string]: ISktClassMeta
 } = {}
 
-export function getProperties(target: ClassConstructor<SktSerializable>): ISktPropertyMetaInfo[] {
+export function sktGetProperties(target: ClassConstructor<SktSerializable>): ISktPropertyMetaInfo[] {
     const meta = sktClassMeta[target.name]
     if (!meta) {
         return []
@@ -29,7 +29,7 @@ export function getProperties(target: ClassConstructor<SktSerializable>): ISktPr
     let properties = meta.properties
     let parentType = parentClass(target)
     if(parentType && sktClassMeta[parentType.name]) {
-        properties = properties.concat(getProperties(parentType))
+        properties = properties.concat(sktGetProperties(parentType))
     }
     return properties.map(p => {
         return {
@@ -37,4 +37,8 @@ export function getProperties(target: ClassConstructor<SktSerializable>): ISktPr
             type: p.typeName ? sktClassMeta[p.typeName].type : undefined
         }
     })
+}
+
+export function sktGetClass(target: string) : ISktClassMeta {
+    return sktClassMeta[target]
 }

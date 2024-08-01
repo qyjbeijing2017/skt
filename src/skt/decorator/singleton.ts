@@ -1,4 +1,4 @@
-export function Singleton<T extends new (...args: any[]) => any>() {
+export function SktSingleton<T extends new (...args: any[]) => any>() {
   let instance: any
   return (target: T) => {
     return new Proxy(target, {

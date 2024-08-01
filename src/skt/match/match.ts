@@ -1,8 +1,11 @@
 import { SktClass } from "../decorator/class";
+import { sktGetProperties } from "../decorator/meta-data";
 import { SktProperty } from "../decorator/property";
+import { isParent } from "../decorator/type-instance-of";
 import { SktSerializedObject } from "../interface/serialized.interface";
 import { SktLogger } from "../logger";
 import { SktSerializable } from "../serializable";
+import { SktObject } from "./object";
 
 export interface SktMatchOptions {
     ctx: nkruntime.Context;
@@ -34,6 +37,23 @@ export class SktMatch extends SktSerializable {
         return this.constructor.name;
     }
 
+    @SktProperty()
+    readonly presences: {
+        [userId: string]: nkruntime.Presence;
+    } = {};
+
+    get children(): SktObject[] {
+        const property = sktGetProperties(this.classConstructor);
+        return property.filter((prop) => {
+            if(isParent(prop.type, SktObject)) {
+                return true;
+            }
+            return false;
+        }).map((prop) => {
+            return this[prop.key] as SktObject;
+        });
+    }
+
     constructor(private readonly option: SktMatchOptions) {
         super(option.nk, new SktLogger(option.logger));
     }
@@ -61,6 +81,7 @@ export class SktMatch extends SktSerializable {
     join(): { state: SktSerializedObject } | null {
         this.deserialize(this.option.state!);
         this.option.presences?.forEach((presence) => {
+            this.presences[presence.userId] = presence;
             this.onPlayerJoin(presence);
         });
         return {
@@ -83,6 +104,13 @@ export class SktMatch extends SktSerializable {
         if(!this.isRunning) {
             return null
         }
+
+        this.children.forEach((child) => {
+            child.handleStart();
+        });
+        this.children.forEach((child) => {
+            child.handleUpdate();
+        });
         this.onLoop();
         return {
             state: this.serialize(),

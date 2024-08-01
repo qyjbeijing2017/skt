@@ -1,5 +1,6 @@
 import { SktClass } from "../decorator/class";
 import { SktProperty } from "../decorator/property";
+import { SktMap } from "../map";
 import { SktTestBaseClass } from "./skt-test-base-class";
 import { SktTestSubClass } from "./skt-test-sub-class";
 
@@ -22,4 +23,7 @@ export class SktTestClass extends SktTestBaseClass {
         new SktTestSubClass(this.nk, this.logger, this),
         new SktTestSubClass(this.nk, this.logger, this),
     ];
+
+    @SktProperty({ type: SktMap })
+    public testMap: SktMap<string, SktTestSubClass> = new SktMap<string, SktTestSubClass>(this.nk, this.logger);
 }

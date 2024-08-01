@@ -2,13 +2,12 @@ import { SktClass } from "../decorator/class";
 import { SktProperty } from "../decorator/property";
 import { SktReadPermission, SktWritePermission } from "../interface/permission";
 import { SktLogger } from "../logger";
-import { SktStorageObject } from "../storage-object";
-import { SktTestClass } from "./skt-test-class";
+import { SktStorage } from "../storage";
 import { SktTestSubStorage } from "./skt-test-sub-storage";
 
 
 @SktClass()
-export class SktTestStorage extends SktStorageObject {
+export class SktTestStorage extends SktStorage {
     protected readPermission: SktReadPermission = SktReadPermission.PUBLIC_READ;
     protected writePermission: SktWritePermission = SktWritePermission.OWNER_WRITE;
 
@@ -20,9 +19,6 @@ export class SktTestStorage extends SktStorageObject {
 
     @SktProperty({ type: SktTestSubStorage })
     testSub: SktTestSubStorage;
-
-    @SktProperty({ type: SktTestClass })
-    testSktObject: SktTestClass;
 
     constructor(
         nk: nkruntime.Nakama,

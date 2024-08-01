@@ -1,5 +1,5 @@
 import { ClassConstructor } from "./decorator/class-constructor";
-import { ISktPropertyMetaInfo, getProperties } from "./decorator/meta-data";
+import { ISktPropertyMetaInfo, sktGetProperties } from "./decorator/meta-data";
 import { SktId, SktSerialized, SktSerializedObject } from "./interface/serialized.interface";
 import { SktLogger } from "./logger";
 import { createStringSktId } from "./utils/id";
@@ -16,6 +16,14 @@ export abstract class SktSerializable {
 
     get classConstructor(): ClassConstructor<SktSerializable> {
         return this.constructor as ClassConstructor<SktSerializable>;
+    }
+
+    get propertiesMetaInfo(): ISktPropertyMetaInfo[] {
+        return sktGetProperties(this.classConstructor);
+    }
+
+    get classMetaInfo(): ISktPropertyMetaInfo {
+        return sktGetProperties(this.classConstructor)[0];
     }
 
     constructor(
@@ -42,7 +50,7 @@ export abstract class SktSerializable {
         this._sktId = input.sktId;
         ctx[this.sktId] = this;
 
-        const properties = getProperties(this.classConstructor);
+        const properties = sktGetProperties(this.classConstructor);
         const serialized = input.objects[this.sktId];
         properties.forEach((property) => {
             let value = serialized[property.key];
@@ -78,7 +86,7 @@ export abstract class SktSerializable {
         if(ctx.objects[this.sktId]) {
             return ctx;
         }
-        const properties = getProperties(this.classConstructor);
+        const properties = sktGetProperties(this.classConstructor);
         const serialized: SktSerialized = {};
         ctx.objects[this.sktId] = serialized;
 

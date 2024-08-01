@@ -15,10 +15,16 @@ export const rpcTestSktDeserialize: nkruntime.RpcFunction = (
     const arrayParentEqual = deserialized.testSubClassArray.map((subClass) => subClass.parent === deserialized);
     deserialized.testSubClass.parent = null;
     deserialized.testSubClassArray.forEach((subClass) => subClass.parent = null);
+    deserialized.testMap.forEach((subClass) => subClass.parent = null);
     return JSON.stringify({
         metadata: sktClassMeta,
         parentEqual,
         arrayParentEqual,
         deserialized,
+        map: {
+            test: deserialized.testMap.get("test"),
+            test2: deserialized.testMap.get("test2"),
+            test3: deserialized.testMap.get("test3"),
+        }
     });
 }
