@@ -33,7 +33,27 @@ export abstract class SktStorage extends SktIdentity {
         this._userId = userId;
     }
 
-    
+    deserialize(ctx: SktSerialized, options: SktDeserializeStorageOptions = {
+        from: SktStorageTarget.MEMORY
+    }, deserialized: Map<string, SktSerializable> = new Map<string, SktSerializable>()): this {
+        if(this.sktId !== ctx.sktId) {
+            throw new Error(`Storage ID mismatch: ${this.sktId} !== ${ctx.sktId}`);
+        }
+        if(deserialized.has(ctx.sktId)) {
+            return deserialized.get(ctx.sktId) as this;
+        }
+        deserialized.set(this.sktId, this);
+
+        if(options.from === SktStorageTarget.STORAGE) {
+            ctx.object[this.sktId] = this;
+        } else {
+            super.deserialize(ctx, options, deserialized);
+        }
+
+        return this;
+    }
+
+
     serialize(options: SktSerializeStorageOptions = {
         target: SktStorageTarget.MEMORY,
         storageDepth: 0
