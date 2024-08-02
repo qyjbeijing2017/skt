@@ -4,8 +4,7 @@ import { SktSerializedObject } from "./interface/serialized.interface";
 import { SktStorageObjectState } from "./interface/storage.interface";
 import { SktLogger } from "./logger";
 import { gmID } from "./user";
-import { DeserializeCtx, SktSerializable } from "./serializable";
-import { isParent } from "./decorator/type-instance-of";
+import { DeserializeCtx } from "./serializable";
 
 
 export class SktStorage extends SktIdentity {
@@ -54,6 +53,8 @@ export class SktStorage extends SktIdentity {
     }
 
     private get writeRequest(): nkruntime.StorageWriteRequest {
+        const serializedObject = this.serialize();
+        
         return {
             collection: this.collection,
             key: this.key,
@@ -65,7 +66,6 @@ export class SktStorage extends SktIdentity {
     }
 
     save(): void {
-        this.logger.debug('save', this._state);
         if(this._state !== SktStorageObjectState.CHANGED) {
             return;
         }
