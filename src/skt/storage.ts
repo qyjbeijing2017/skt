@@ -1,112 +1,82 @@
+import { SktStorageTarget } from "./decorator/storage.property";
 import { SktIdentity } from "./identity";
-import { SktReadPermission, SktWritePermission } from "./interface/permission";
-import { SktSerializedObject } from "./interface/serialized.interface";
-import { SktStorageObjectState } from "./interface/storage.interface";
+import { SktSerialized, SktSerializedObject } from "./interface/serialized.interface";
 import { SktLogger } from "./logger";
-import { gmID } from "./user";
-import { DeserializeCtx } from "./serializable";
+import { SktMeta } from "./meta";
+import { SktDeserializeOptions, SktSerializable, SktSerializeOptions } from "./serializable";
+import { sktServerId } from "./utils/server-id";
+
+export interface SktSerializeStorageOptions extends SktSerializeOptions {
+    target: SktStorageTarget;
+    storageDepth: number;
+}
+
+export interface SktDeserializeStorageOptions extends SktDeserializeOptions {
+    from: SktStorageTarget;
+}
 
 
-export class SktStorage extends SktIdentity {
-    protected readPermission: SktReadPermission = SktReadPermission.OWNER_READ;
-    protected writePermission: SktWritePermission = SktWritePermission.OWNER_WRITE;
-    private _version?: string;
-
-    get version(): string | undefined {
-        return this._version;
-    }
-    private _state: SktStorageObjectState = SktStorageObjectState.NEW;
-    get state(): SktStorageObjectState {
-        return this._state;
+export abstract class SktStorage extends SktIdentity {
+    private _userId?: string;
+    get userId(): string {
+        return this._userId ?? sktServerId;
     }
 
     constructor(
-        nk: nkruntime.Nakama,
-        logger: SktLogger,
+        readonly nk: nkruntime.Nakama,
+        readonly logger: SktLogger,
         readonly collection: string,
         readonly key: string,
-        readonly userId: string = gmID,
+        userId?: string
     ) {
         super(nk, logger, `${userId}:${collection}:${key}`);
+        this._userId = userId;
     }
 
-    update(): this {
-        const [storageObject] = this.nk.storageRead([this.readRequest]);
-        if(!storageObject) {
-            this._state = SktStorageObjectState.READ;
-            return this;
+    
+    serialize(options: SktSerializeStorageOptions = {
+        target: SktStorageTarget.MEMORY,
+        storageDepth: 0
+    }, ctx: SktSerialized = {
+        sktId: this.sktId,
+        object: {}
+    }): SktSerialized {
+        if(ctx.object[this.sktId]) {
+            return ctx;
         }
-        this.propertiesMetaInfo.forEach(metaInfo => {
-            this[metaInfo.key] = storageObject.value[metaInfo.key];
-        });
-        this._version = storageObject.version;
-        this._state = SktStorageObjectState.READ;
-        return this;
-    }
 
-    private get readRequest(): nkruntime.StorageReadRequest {
-        return {
-            collection: this.collection,
-            key: this.key,
-            userId: this.userId
-        };
-    }
+        const serializedObject: SktSerializedObject = {}
+        ctx.object[this.sktId] = serializedObject;
 
-    private get writeRequest(): nkruntime.StorageWriteRequest {
-        const serializedObject = this.serialize();
-        
-        return {
-            collection: this.collection,
-            key: this.key,
-            permissionRead: this.readPermission,
-            permissionWrite: this.writePermission,
-            userId: this.userId,
-            value: this.serialize(),
+        const classMeta = SktMeta.getClassMeta(this.constructor as any);
+        if(!classMeta) {
+            throw new Error(`Class meta not found for ${this.constructor.name}`);
         }
-    }
 
-    save(): void {
-        if(this._state !== SktStorageObjectState.CHANGED) {
-            return;
+        if(options.storageDepth > 0 && options.target === SktStorageTarget.STORAGE) {
+            return ctx;
         }
-        const writeResults = this.nk.storageWrite([this.writeRequest]);
-        this._version = writeResults[0].version;
-        this._state = SktStorageObjectState.READ;
-    }
 
-    static save(...storages: SktStorage[]): void {
-        if(storages.length === 0) {
-            storages = SktStorage.findIdentitiesByType(SktStorage);
-            if(storages.length === 0) {
-                return;
+        options.storageDepth++;
+
+        classMeta.properties.forEach((propertyMeta, propertyName) => {
+            if(propertyMeta.storageTarget & options.target) {
+                let value = (this as any)[propertyName];
+                if(propertyMeta.type) {
+                    if(Array.isArray(value)) {
+                        serializedObject[propertyName] = (value as SktSerializable[]).map((v) => {
+                            return v.serialize(options, ctx).sktId;
+                        });
+                    }  else {
+                        serializedObject[propertyName] = (value as SktSerializable).serialize(options, ctx).sktId;
+                    }
+
+                } else {
+                    serializedObject[propertyName] = value;
+                }
             }
-        }
-        storages = storages.filter(storage => storage.state === SktStorageObjectState.CHANGED);
-        if(storages.length === 0)  {
-            return;
-        }
-        const writeRequests = storages.map(storage => storage.writeRequest);
-        const writeResults = storages[0].nk.storageWrite(writeRequests);
-        storages.forEach((storage, index) => {
-            storage._version = writeResults[index].version;
-            storage._state = SktStorageObjectState.READ;
         });
-    }
 
-    destroy(): void {
-        this.nk.storageDelete([this.readRequest]);
-        this._state = SktStorageObjectState.NEW;
-    }
-
-    serialize(ctx?: SktSerializedObject): SktSerializedObject {
-        ctx = super.serialize(ctx);
-        ctx.objects[this.sktId].state = this._state;
-        return ctx;
-    }
-
-    deserialize(input: SktSerializedObject, ctx?: DeserializeCtx): this {
-        super.deserialize(input, ctx);
-        this._state = ctx.objects[this.sktId].state;
-        return this;
+        return ctx
     }
 }

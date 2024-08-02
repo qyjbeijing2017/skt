@@ -1,51 +1,25 @@
-import { ClassConstructor } from "./decorator/class-constructor";
+import { SktSerialized } from "./interface/serialized.interface";
 import { SktLogger } from "./logger";
-import { SktSerializable } from "./serializable";
+import { SktDeserializeOptions, SktSerializable } from "./serializable";
 
 export abstract class SktIdentity extends SktSerializable {
-    static readonly sktIdentities: { [sktId: string]: SktIdentity } = {};
+    static readonly identities: Map<string, SktIdentity> = new Map<string, SktIdentity>();
     constructor(
-        nk: nkruntime.Nakama,
-        logger: SktLogger,
-        sktId: string,
+        readonly nk: nkruntime.Nakama,
+        readonly logger: SktLogger,
+        sktId: string
     ) {
         super(nk, logger, sktId);
-        if(SktIdentity.sktIdentities[this.sktId]) {
-            return SktIdentity.sktIdentities[this.sktId];
+        if(SktIdentity.identities.has(sktId)) {
+            return SktIdentity.identities.get(sktId) as SktIdentity;
         }
-        SktIdentity.sktIdentities[this.sktId] = this;
+        SktIdentity.identities.set(sktId, this);
     }
 
-    static hasIdentity(sktId: string): boolean {
-        return SktIdentity.sktIdentities[sktId] !== undefined;
-    }
-
-    static getIdentity(sktId: string): SktIdentity | undefined {
-        return SktIdentity.sktIdentities[sktId];
-    }
-
-    static findIdentityById(sktId: string): SktIdentity | undefined {
-        return SktIdentity.sktIdentities[sktId];
-    }
-
-    static findIdentityByType<T extends SktIdentity>(type: ClassConstructor<T>): T | undefined {
-        for(const sktId in SktIdentity.sktIdentities) {
-            const identity = SktIdentity.sktIdentities[sktId];
-            if(identity instanceof type) {
-                return identity as T;
-            }
+    deserialize(ctx: SktSerialized, options?: SktDeserializeOptions, deserialized?: Map<string, SktSerializable>): this {
+        if(deserialized.has(ctx.sktId)) {
+            return deserialized.get(ctx.sktId).deserialize(ctx, options, deserialized) as this;
         }
-        return undefined;
-    }
-
-    static findIdentitiesByType<T extends SktIdentity>(type: ClassConstructor<T>): T[] {
-        const identities: T[] = [];
-        for(const sktId in SktIdentity.sktIdentities) {
-            const identity = SktIdentity.sktIdentities[sktId];
-            if(identity instanceof type) {
-                identities.push(identity as T);
-            }
-        }
-        return identities;
+        return super.deserialize(ctx, options, deserialized);
     }
 }

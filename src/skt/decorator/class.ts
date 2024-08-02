@@ -1,14 +1,18 @@
-import { sktClassMeta } from "./meta-data";
+import { SktMeta } from "../meta";
+import { SktSerializable } from "../serializable";
+import { SktClassConstructor } from "../utils/class-constructor";
 
 export interface SktClassOptions {}
 export function SktClass(options: SktClassOptions = {}): ClassDecorator {
-    return function <T extends Function>(target: T) {
+    return function <T extends SktClassConstructor<SktSerializable>>(target: T) {
         const name = target.name;
-        if (!sktClassMeta[name]) {
-            sktClassMeta[name] = {
-                properties: []
-            };
+        if(!SktMeta.meta.has(name)) {
+            SktMeta.meta.set(name, {
+                name: name,
+                properties: new Map()
+            });
         }
-        sktClassMeta[name].type = target as any;
-    }
+        const meta = SktMeta.meta.get(name)!;
+        meta.classConstructor = target;        
+    } as ClassDecorator;
 }

@@ -1,25 +1,22 @@
-import { SktStorageObjectState } from "../interface/storage.interface";
+import { SktMeta } from "../meta";
 import { SktStorage } from "../storage";
-import { SktPropertyOptions } from "./property";
+import { SktProperty, SktPropertyOptions } from "./property";
 
+export enum SktStorageTarget {
+    MEMORY = 1,
+    STORAGE = 1 << 1,
+}
 
-export function SktStorageProperty(options: SktPropertyOptions = {}): PropertyDecorator {
-    return function(target: SktStorage, key: string) {
-        let value: any;
-        Object.defineProperty(target, key, {
-            get: function () {
-                return value;
-            },
-            set: function (next: any) {
-                if(next === value) {
-                    return;
-                }
-                const self = this as SktStorage;
-                self['_state'] = SktStorageObjectState.CHANGED;
-                value = next;
-            },
-            enumerable: true,
-            configurable: false,
-        });
+export interface SktStoragePropertyOptions extends SktPropertyOptions {
+    storage?: SktStorageTarget;
+}
+
+export function SktStorageProperty(options: SktStoragePropertyOptions = {}): PropertyDecorator {
+    return function (target: SktStorage, propertyKey: string) {
+        SktProperty(options)(target, propertyKey);
+        const name = target.constructor.name;
+        const classMeta = SktMeta.meta.get(name)!;
+        const propertyMeta = classMeta.properties.get(propertyKey)!;
+        propertyMeta.storageTarget = options.storage ?? SktStorageTarget.MEMORY | SktStorageTarget.STORAGE;
     }
 }

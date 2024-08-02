@@ -1,0 +1,1 @@
+export type SktClassConstructor<T> = new (...args: any[]) => T;
