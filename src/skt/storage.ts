@@ -4,9 +4,7 @@ import { SktLogger } from "./logger";
 const gmId = `00000000-0000-0000-0000-000000000000`
 
 export class SktStorage extends SktIdentity {
-
-
-
+    static readonly storageMeta: Map<string, SktStorage> = new Map();
     constructor(
         nk: nkruntime.Nakama,
         logger: SktLogger,
@@ -16,6 +14,5 @@ export class SktStorage extends SktIdentity {
     ) {
         super(nk, logger, `${userId}:${collection}:${key}`);
     }
-
-
+    
 }

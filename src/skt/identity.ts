@@ -1,7 +1,7 @@
 import { SktLogger } from "./logger";
 import { SktSerializable, SktSerialized } from "./serializable";
 
-export class SktIdentity extends SktSerializable {
+export abstract class SktIdentity extends SktSerializable {
     static readonly identities: Map<string, SktIdentity> = new Map();
     constructor(
         nk: nkruntime.Nakama,

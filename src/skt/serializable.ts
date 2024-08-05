@@ -3,8 +3,14 @@ import { SktLogger } from "./logger";
 export type SktClassConstructor<T> = new (...args: any[]) => T;
 export type SktSerializableConstructor = SktClassConstructor<SktSerializable>;
 
+export enum StorageType {
+    STATE = 1,
+    STORAGE = 1 << 1,
+}
+
 export interface SktPropertyMeta {
     typeName?: string;
+    storageTo?: StorageType;
 }
 
 export interface SktClassMeta {
@@ -28,6 +34,7 @@ export function SktClass(options: SktClassOptions = {}) {
 
 export interface SktPropertyOptions {
     type?: SktSerializableConstructor | string;
+    storageTo?: StorageType;
 }
 
 export function SktProperty(options: SktPropertyOptions = {}) {
@@ -39,9 +46,12 @@ export function SktProperty(options: SktPropertyOptions = {}) {
             });
         }
         const classMeta = SktSerializable.getMeta(target.constructor as SktSerializableConstructor);
-        classMeta.properties.set(propertyKey, {
-            typeName: options.type ? (typeof options.type === 'string' ? options.type : options.type.name) : undefined
-        });
+        if (!classMeta.properties.has(propertyKey)) {
+            classMeta.properties.set(propertyKey, {
+                typeName: options.type ? (typeof options.type === 'string' ? options.type : options.type.name) : undefined,
+                storageTo: options.storageTo ?? StorageType.STATE
+            });
+        }
     };
 }
 
@@ -79,7 +89,7 @@ export abstract class SktSerializable {
     constructor(
         readonly nk: nkruntime.Nakama,
         readonly logger: SktLogger,
-        sktId?: string 
+        sktId?: string
     ) {
         logger.debug(`nk is null: ${nk === undefined}`);
         this._sktId = sktId ?? nk.uuidv4();
@@ -88,25 +98,25 @@ export abstract class SktSerializable {
     serialize(serialized: SktSerialized = {
         sktId: this.sktId,
         objects: {}
-    }){
-        if(serialized.objects[this.sktId]) return serialized;
+    }) {
+        if (serialized.objects[this.sktId]) return serialized;
         const classMeta = this.meta;
-        if(!classMeta) {
+        if (!classMeta) {
             throw new Error(`Class meta not found for ${this.constructor.name}`);
         }
         const object: SktSerializedObject = {};
         serialized.objects[this.sktId] = object;
 
         classMeta.properties.forEach((propertyMeta, propertyKey) => {
-            if(propertyMeta.typeName) {
-                if(Array.isArray(this[propertyKey])) {
+            if (propertyMeta.typeName) {
+                if (Array.isArray(this[propertyKey])) {
                     object[propertyKey] = (this[propertyKey] as SktSerializable[]).map((value) => {
-                        if(!value) return null;
+                        if (!value) return null;
                         value.serialize(serialized);
                         return value.sktId;
                     });
                 } else {
-                    if(!this[propertyKey]) {
+                    if (!this[propertyKey]) {
                         object[propertyKey] = null;
                     } else {
                         (this[propertyKey] as SktSerializable).serialize(serialized);
@@ -125,32 +135,32 @@ export abstract class SktSerializable {
     }
 
     deserialize(serialized: SktSerialized, context: Map<string, SktSerializable> = new Map()): this {
-        if(context.has(serialized.sktId)) return context.get(serialized.sktId) as this;
+        if (context.has(serialized.sktId)) return context.get(serialized.sktId) as this;
         this._sktId = serialized.sktId;
         const object = serialized.objects[this.sktId];
-        if(!object)  {
+        if (!object) {
             throw new Error(`Object not found for ${this.sktId}`);
         }
         context.set(this.sktId, this);
         const classMeta = this.meta;
-        if(!classMeta) {
+        if (!classMeta) {
             throw new Error(`Class meta not found for ${this.constructor.name}`);
         }
         classMeta.properties.forEach((propertyMeta, propertyKey) => {
-            if(!propertyMeta) {
+            if (!propertyMeta) {
                 throw new Error(`Property meta not found for ${propertyKey}`);
             }
-            if(propertyMeta.typeName) {
-                if(Array.isArray(object[propertyKey])) {
+            if (propertyMeta.typeName) {
+                if (Array.isArray(object[propertyKey])) {
                     this[propertyKey] = (object[propertyKey] as string[]).map((value) => {
-                        if(!value) return null;
+                        if (!value) return null;
                         const type = SktSerializable.getMeta(propertyMeta.typeName);
                         const sktSerializable = new type.constructor(this.nk, this.logger);
                         serialized.sktId = value;
                         return sktSerializable.deserialize(serialized, context);
                     });
                 } else {
-                    if(!object[propertyKey]) {
+                    if (!object[propertyKey]) {
                         this[propertyKey] = null;
                     } else {
                         const type = SktSerializable.getMeta(propertyMeta.typeName);
