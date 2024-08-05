@@ -1,3 +1,5 @@
+import { rpcTestSktSerialize } from "./skt/rpc/test-serializable.rpc";
+
 function InitModule(
     ctx: nkruntime.Context,
     logger: nkruntime.Logger,
@@ -5,6 +7,7 @@ function InitModule(
     initializer: nkruntime.Initializer
 ) {
     try {
+        initializer.registerRpc("rpcTestSktSerialize", rpcTestSktSerialize);
     } catch (error) {
         logger.error("Error initializing module", error.message);
     }

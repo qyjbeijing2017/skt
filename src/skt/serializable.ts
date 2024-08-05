@@ -1,4 +1,4 @@
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+import { SktLogger } from "./logger";
 
 export type SktClassConstructor<T> = new (...args: any[]) => T;
 export type SktSerializableConstructor = SktClassConstructor<SktSerializable>;
@@ -30,6 +30,20 @@ export interface SktPropertyOptions {
     type?: SktSerializableConstructor | string;
 }
 
+export function SktProperty(options: SktPropertyOptions = {}) {
+    return (target: SktSerializable, propertyKey: string) => {
+        if (!SktSerializable.meta.has(target.constructor.name)) {
+            SktSerializable.meta.set(target.constructor.name, {
+                constructor: target.constructor as SktSerializableConstructor,
+                properties: new Map<string, SktPropertyMeta>()
+            });
+        }
+        const classMeta = SktSerializable.getMeta(target.constructor as SktSerializableConstructor);
+        classMeta.properties.set(propertyKey, {
+            typeName: options.type ? (typeof options.type === 'string' ? options.type : options.type.name) : undefined
+        });
+    };
+}
 
 export type SktSktSerializableType = string | number | boolean | object | null | undefined
 
@@ -46,13 +60,6 @@ export interface SktSerialized {
 
 export abstract class SktSerializable {
     static readonly meta: Map<string, SktClassMeta> = new Map<string, SktClassMeta>();
-    static randomId(): string {
-        let result = '';
-        for (let i = 0; i < 4; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
-    }
 
     static getMeta(name: string | SktSerializableConstructor): SktClassMeta | undefined {
         return SktSerializable.meta.get(typeof name === 'string' ? name : name.name);
@@ -62,11 +69,21 @@ export abstract class SktSerializable {
         return SktSerializable.getMeta(this.constructor as SktSerializableConstructor);
     }
 
+    private _sktId: string;
+
+    get sktId(): string {
+        return this._sktId;
+    }
+
+
     constructor(
         readonly nk: nkruntime.Nakama,
-        readonly logger: nkruntime.Logger,
-        readonly sktId: string = SktSerializable.randomId()
-    ) {}
+        readonly logger: SktLogger,
+        sktId?: string 
+    ) {
+        logger.debug(`nk is null: ${nk === undefined}`);
+        this._sktId = sktId ?? nk.uuidv4();
+    }
 
     serialize(serialized: SktSerialized = {
         sktId: this.sktId,
@@ -109,6 +126,7 @@ export abstract class SktSerializable {
 
     deserialize(serialized: SktSerialized, context: Map<string, SktSerializable> = new Map()): this {
         if(context.has(serialized.sktId)) return context.get(serialized.sktId) as this;
+        this._sktId = serialized.sktId;
         const object = serialized.objects[this.sktId];
         if(!object)  {
             throw new Error(`Object not found for ${this.sktId}`);
@@ -127,7 +145,8 @@ export abstract class SktSerializable {
                     this[propertyKey] = (object[propertyKey] as string[]).map((value) => {
                         if(!value) return null;
                         const type = SktSerializable.getMeta(propertyMeta.typeName);
-                        const sktSerializable = new type.constructor(this.nk, this.logger, value);
+                        const sktSerializable = new type.constructor(this.nk, this.logger);
+                        serialized.sktId = value;
                         return sktSerializable.deserialize(serialized, context);
                     });
                 } else {
@@ -135,7 +154,8 @@ export abstract class SktSerializable {
                         this[propertyKey] = null;
                     } else {
                         const type = SktSerializable.getMeta(propertyMeta.typeName);
-                        const sktSerializable = new type.constructor(this.nk, this.logger, object[propertyKey] as string);
+                        const sktSerializable = new type.constructor(this.nk, this.logger);
+                        serialized.sktId = object[propertyKey] as string;
                         this[propertyKey] = sktSerializable.deserialize(serialized, context);;
                     }
                 }
