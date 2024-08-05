@@ -1,8 +1,3 @@
-// import { sktTestMatch } from "./skt/test/match/match-init";
-// import { rpcTestSktDeserialize } from "./skt/test/rpc/rpc-test-deserialize";
-// import { rpcTestSktSerialize } from "./skt/test/rpc/rpc-test-serialize";
-// import { rpcTestSktStorage } from "./skt/test/rpc/rpc-test-storage";
-
 function InitModule(
     ctx: nkruntime.Context,
     logger: nkruntime.Logger,
@@ -10,11 +5,6 @@ function InitModule(
     initializer: nkruntime.Initializer
 ) {
     try {
-        // test skt
-        // initializer.registerRpc("rpcTestSktSerialize", rpcTestSktSerialize);
-        // initializer.registerRpc("rpcTestSktDeserialize", rpcTestSktDeserialize);
-        // initializer.registerRpc("rpcTestSktStorage", rpcTestSktStorage);
-        // initializer.registerMatch("sktTestMatch", sktTestMatch);
     } catch (error) {
         logger.error("Error initializing module", error.message);
     }
